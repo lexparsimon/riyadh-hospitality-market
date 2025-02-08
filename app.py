@@ -137,7 +137,7 @@ def plot_occupancy_projection():
     ax_occ.set_ylabel("Occupancy Rate (%)", fontsize=18, color=text_color)
     ax_occ.set_title("Projected Occupancy, High ADR & High Occupancy, 2025–2034", fontsize=20, color=text_color)
     ax_occ.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
-    ax_occ.set_ylim(0, 1.1)
+    ax_occ.set_ylim(0, 100.1)
     ax_occ.tick_params(axis='x', labelsize=16, colors=text_color)
     ax_occ.tick_params(axis='y', labelsize=16, colors=text_color)
     # Remove spines
