@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 import pandas as pd
+import streamlit.components.v1 as components  # To embed external HTML
 
 # Set page configuration to wide.
 st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
@@ -12,6 +13,19 @@ st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
 # ==============================
 st.title("Riyadh Hospitality Market")
 st.subheader("2024-2034 Supply-Demand Dynamics")
+
+# ==============================
+# Section: Kepler.gl Map
+# ==============================
+st.subheader("Map of Hotels")
+# Read the Kepler.gl HTML map (ensure 'kepler_map.html' is in your repository)
+try:
+    with open("riyadh_hospitality.html", "r", encoding="utf-8") as f:
+        kepler_map_html = f.read()
+    # Embed the HTML map; adjust the height/width as desired.
+    components.html(kepler_map_html, height=600, width=1000)
+except Exception as e:
+    st.error("Error loading Kepler map. Please ensure 'kepler_map.html' is in the repository.")
 
 # ==============================
 # Plotly Chart: Hotel Quadrants
@@ -65,23 +79,23 @@ fig_plotly.update_traces(
     )
 )
 
-# Add median lines in white, but thinner and dimmer.
+# Add median lines with thinner, dimmer white lines.
 fig_plotly.add_vline(
     x=adr_median, 
     line_dash="dash", 
-    line_color="rgba(255,255,255,0.6)", 
+    line_color="rgba(255,255,255,0.3)", 
     line_width=1, 
     annotation_text="Median ADR"
 )
 fig_plotly.add_hline(
     y=occupancy_median, 
     line_dash="dash", 
-    line_color="rgba(255,255,255,0.6)", 
+    line_color="rgba(255,255,255,0.3)", 
     line_width=1, 
     annotation_text="Median Occupancy"
 )
 
-# Use a dark template for the Plotly chart.
+# Update layout for a clean dark look.
 fig_plotly.update_layout(
     xaxis_title="Median ADR (SAR)",
     yaxis_title="Occupancy Rate",
