@@ -11,7 +11,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     # Default upcoming supply values (for years 2025-2034) from your original data:
     default5 = np.array([1168, 2408, 4586, 1945, 481, 490, 0, 0, 0, 384])
     default4 = np.array([1317, 1281, 1170, 950, 384, 224, 0, 0, 294, 0])
-    total_default = np.sum(default5 + default4)  # Total of default upcoming supply (for 2025-2034)
+    total_default = np.sum(default5 + default4)  # Total default upcoming supply for 2025-2034
     
     # Create upcoming supply arrays for each year (year 2024 gets no new supply).
     new_supply_5 = np.zeros(T)
@@ -119,31 +119,39 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     share2 = 100 * K2 / total_keys
     share3 = 100 * K3 / total_keys
     
-    # --- Set a classy style.
+    # --- Set a dark style.
     try:
-        plt.style.use('seaborn-whitegrid')
+        plt.style.use('dark_background')
     except OSError:
         plt.style.use('default')
     
-    # Create larger, classy graphs.
-    fig, ax = plt.subplots(1, 2, figsize=(16, 8))
+    # Create larger graphs with the dark style and no frame.
+    fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+    
+    # Plot Market Shares
     ax[0].plot(years, share1, marker='o', color='#1f77b4', linewidth=2, label='Group 1 (Luxury)')
     ax[0].plot(years, share2, marker='o', color='#ff7f0e', linewidth=2, label='Group 2 (Upper-Mid)')
     ax[0].plot(years, share3, marker='o', color='#2ca02c', linewidth=2, label='Group 3 (Budget)')
-    ax[0].set_xlabel("Year", fontsize=14)
-    ax[0].set_ylabel("Market Share (%)", fontsize=14)
-    ax[0].set_title("Evolution of Market Shares", fontsize=16)
-    ax[0].legend(fontsize=12)
-    ax[0].grid(True)
+    ax[0].set_xlabel("Year", fontsize=16)
+    ax[0].set_ylabel("Market Share (%)", fontsize=16)
+    ax[0].set_title("Evolution of Market Shares", fontsize=18)
+    ax[0].legend(fontsize=14)
+    ax[0].grid(True, linestyle='--', alpha=0.7)
     
+    # Plot ADRs
     ax[1].plot(years, ADR1_nom, marker='o', color='#d62728', linewidth=2, label='Group 1 ADR')
     ax[1].plot(years, ADR2_nom, marker='o', color='#9467bd', linewidth=2, label='Group 2 ADR')
     ax[1].plot(years, ADR3_nom, marker='o', color='#8c564b', linewidth=2, label='Group 3 ADR')
-    ax[1].set_xlabel("Year", fontsize=14)
-    ax[1].set_ylabel("ADR (SAR, nominal)", fontsize=14)
-    ax[1].set_title("Evolution of Nominal ADR", fontsize=16)
-    ax[1].legend(fontsize=12)
-    ax[1].grid(True)
+    ax[1].set_xlabel("Year", fontsize=16)
+    ax[1].set_ylabel("ADR (SAR, nominal)", fontsize=16)
+    ax[1].set_title("Evolution of Nominal ADR", fontsize=18)
+    ax[1].legend(fontsize=14)
+    ax[1].grid(True, linestyle='--', alpha=0.7)
+    
+    # --- Remove frames (axes spines) for a cool, frameless look.
+    for a in ax:
+        for spine in a.spines.values():
+            spine.set_visible(False)
     
     plt.tight_layout()
     return fig
