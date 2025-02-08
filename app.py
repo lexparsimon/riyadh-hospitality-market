@@ -8,6 +8,37 @@ import streamlit.components.v1 as components  # For embedding external HTML
 # Set page configuration to wide.
 st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
 
+# -----------------------------------------------------------------------------
+# Inject custom CSS for mobile responsiveness.
+# -----------------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    /* Adjust main container padding and max-width */
+    .reportview-container .main .block-container {
+        padding: 1rem;
+        max-width: 95%;
+    }
+    /* Force columns to stack vertically on small screens */
+    @media only screen and (max-width: 600px) {
+        div[data-testid="column"] {
+            flex: 100% !important;
+            max-width: 100% !important;
+        }
+        /* Adjust header sizes on mobile */
+        h1 { font-size: 2.5rem !important; }
+        h2 { font-size: 2rem !important; }
+    }
+    /* Make embedded HTML (e.g. Kepler map) responsive */
+    .responsive-html {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # =============================================================================
 # 1. Title and Subtitle
 # =============================================================================
@@ -51,7 +82,6 @@ fig_plotly = px.scatter(
     }
 )
 
-# Update hover template with spaces around "=".
 fig_plotly.update_traces(
     hovertemplate=(
         "<b>%{hovertext}</b><br><br>" +
@@ -62,7 +92,6 @@ fig_plotly.update_traces(
     )
 )
 
-# Add median lines that are thinner (1 px) and dimmer.
 fig_plotly.add_vline(
     x=adr_median,
     line_dash="dash",
@@ -92,10 +121,12 @@ st.plotly_chart(fig_plotly, use_container_width=True)
 # =============================================================================
 st.subheader("Map of Hotels")
 try:
-    with open("riyadh_hospitality.html", "r", encoding="utf-8") as f:
+    with open("kepler_map.html", "r", encoding="utf-8") as f:
         kepler_map_html = f.read()
-    # Embed the Kepler.gl map (adjust height and width as desired)
+    # Wrap the embedded HTML in a responsive div.
+    st.markdown('<div class="responsive-html">', unsafe_allow_html=True)
     components.html(kepler_map_html, height=600, width=1000)
+    st.markdown('</div>', unsafe_allow_html=True)
 except Exception as e:
     st.error("Error loading Kepler map. Please ensure 'kepler_map.html' is in the repository.")
 
@@ -126,21 +157,21 @@ def plot_occupancy_projection():
     fig_occ.patch.set_facecolor('#0E1117')
     ax_occ.set_facecolor('#0E1117')
 
-    # Use dimmed white for all text (RGBA: white with 70% opacity).
-    text_color = (1,1,1,0.7)  # This tuple works as a color in matplotlib
+    # Use dimmed white for all text (70% opacity white)
+    text_color = (1,1,1,0.7)
 
     for g in demand_growth_rates:
         demand = occupied_today * (1 + g) ** years_proj
-        occupancy = 100*demand / supply
+        occupancy = 100 * demand / supply
         ax_occ.plot(2025 + years_proj, occupancy, marker='o', linewidth=2, label=f"Demand Growth = {g*100:.0f}%/yr")
     ax_occ.axhline(occ_rate_today*100, color='red', linestyle='--', linewidth=1, label=f"Current Occupancy ({occ_rate_today*100:.1f}%)")
+    ax_occ.set_xlabel("Year", fontsize=18, color=text_color)
     ax_occ.set_ylabel("Occupancy Rate (%)", fontsize=18, color=text_color)
-    ax_occ.set_title("Projected Occupancy, High ADR & High Occupancy, 2025–2034", fontsize=20, color=text_color)
+    ax_occ.set_title("Projected Occupancy for Group 1 (5‑star Luxury) over 2025–2035", fontsize=20, color=text_color)
     ax_occ.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
     ax_occ.set_ylim(0, 100.1)
     ax_occ.tick_params(axis='x', labelsize=16, colors=text_color)
     ax_occ.tick_params(axis='y', labelsize=16, colors=text_color)
-    # Remove spines
     for spine in ax_occ.spines.values():
         spine.set_visible(False)
     leg_occ = ax_occ.legend(fontsize=14, frameon=False)
@@ -295,13 +326,10 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     plt.tight_layout()
     return fig_sim
 
-# =============================================================================
-# 6. Layout: Simulation Controls and Output
-# =============================================================================
+st.subheader("Simulation Output")
 col1, col2 = st.columns([3, 1])
 with col2:
     st.markdown("## Controls")
-    # Define the controls outside the column block to ensure variables are available.
     demand_growth = st.slider("Demand Growth Rate (%)", 0.0, 25.0, 5.0, step=0.1) / 100.0
     inflation_rate = st.slider("Inflation (%)", 1.0, 20.0, 2.0, step=0.1) / 100.0
     upcoming_supply_total = st.slider("Upcoming Supply 2025-2034", 0, 50000, 17082, step=100)
