@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Optional: Cache the simulation so that if parameters haven't changed, it reuses the result.
+@st.cache_data
 def simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str):
     T = 11  # Simulate from 2024 to 2034.
     years = np.arange(2024, 2024 + T)
@@ -126,13 +128,13 @@ def simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str):
 st.title("Riyadh Hospitality Market")
 st.subheader("2024-2034 Supply-Demand Dynamics")
 
-# Input widgets
+# Input widgets: changes in any widget will automatically trigger a rerun.
 demand_growth = st.slider("Demand Growth (%)", 0.0, 25.0, 5.0) / 100.0
 inflation_rate = st.slider("Inflation (%)", 1.0, 20.0, 2.0) / 100.0
 supply5_str = st.text_input("Supply 5", "860,1168,2408,4586,1945,481,490,0,0,0,384")
 supply4_str = st.text_input("Supply 4", "417,1317,1281,1170,950,384,224,0,0,294,0")
 
-if st.button("Run Simulation"):
-    fig = simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str)
-    if fig is not None:
-        st.pyplot(fig)
+# Automatically run the simulation when any input changes.
+fig = simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str)
+if fig is not None:
+    st.pyplot(fig)
