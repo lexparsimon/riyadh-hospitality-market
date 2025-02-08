@@ -117,11 +117,11 @@ fig_plotly.update_layout(
 st.plotly_chart(fig_plotly, use_container_width=True)
 
 # =============================================================================
-# 3. Kepler.gl Map Section
+# 3. Map Section
 # =============================================================================
 st.subheader("Map of Hotels")
 try:
-    with open("kepler_map.html", "r", encoding="utf-8") as f:
+    with open("riyadh_hospitality.html", "r", encoding="utf-8") as f:
         kepler_map_html = f.read()
     # Wrap the embedded HTML in a responsive div.
     st.markdown('<div class="responsive-html">', unsafe_allow_html=True)
