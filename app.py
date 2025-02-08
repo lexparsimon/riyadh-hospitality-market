@@ -2,6 +2,9 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Set page configuration to wide and set a title.
+st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
+
 @st.cache_data
 def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     T = 11  # Simulation for years 2024 to 2034.
@@ -119,36 +122,39 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     share2 = 100 * K2 / total_keys
     share3 = 100 * K3 / total_keys
     
-    # --- Set a dark style.
+    # --- Set a dark style and adjust backgrounds.
     try:
         plt.style.use('dark_background')
     except OSError:
         plt.style.use('default')
     
-    # Create larger graphs with the dark style and no frame.
+    # Create a large figure (20x10) with the desired background.
     fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+    fig.patch.set_facecolor('#0E1117')  # Match Streamlit dark background.
     
-    # Plot Market Shares
+    # Plot Market Shares.
     ax[0].plot(years, share1, marker='o', color='#1f77b4', linewidth=2, label='Group 1 (Luxury)')
     ax[0].plot(years, share2, marker='o', color='#ff7f0e', linewidth=2, label='Group 2 (Upper-Mid)')
     ax[0].plot(years, share3, marker='o', color='#2ca02c', linewidth=2, label='Group 3 (Budget)')
-    ax[0].set_xlabel("Year", fontsize=16)
-    ax[0].set_ylabel("Market Share (%)", fontsize=16)
-    ax[0].set_title("Evolution of Market Shares", fontsize=18)
-    ax[0].legend(fontsize=14)
+    ax[0].set_xlabel("Year", fontsize=14)
+    ax[0].set_ylabel("Market Share (%)", fontsize=14)
+    ax[0].set_title("Evolution of Market Shares", fontsize=16)
+    leg1 = ax[0].legend(fontsize=12, frameon=False)
     ax[0].grid(True, linestyle='--', alpha=0.7)
+    ax[0].set_facecolor('#0E1117')
     
-    # Plot ADRs
+    # Plot ADRs.
     ax[1].plot(years, ADR1_nom, marker='o', color='#d62728', linewidth=2, label='Group 1 ADR')
     ax[1].plot(years, ADR2_nom, marker='o', color='#9467bd', linewidth=2, label='Group 2 ADR')
     ax[1].plot(years, ADR3_nom, marker='o', color='#8c564b', linewidth=2, label='Group 3 ADR')
-    ax[1].set_xlabel("Year", fontsize=16)
-    ax[1].set_ylabel("ADR (SAR, nominal)", fontsize=16)
-    ax[1].set_title("Evolution of Nominal ADR", fontsize=18)
-    ax[1].legend(fontsize=14)
+    ax[1].set_xlabel("Year", fontsize=14)
+    ax[1].set_ylabel("ADR (SAR, nominal)", fontsize=14)
+    ax[1].set_title("Evolution of Nominal ADR", fontsize=16)
+    leg2 = ax[1].legend(fontsize=12, frameon=False)
     ax[1].grid(True, linestyle='--', alpha=0.7)
+    ax[1].set_facecolor('#0E1117')
     
-    # --- Remove frames (axes spines) for a cool, frameless look.
+    # Remove frames (axes spines) for a clean look.
     for a in ax:
         for spine in a.spines.values():
             spine.set_visible(False)
@@ -165,11 +171,11 @@ col1, col2 = st.columns([3, 1])
 
 with col2:
     st.markdown("## Controls")
-    # Slider for Demand Growth Rate
+    # Slider for Demand Growth Rate.
     demand_growth = st.slider("Demand Growth Rate (%)", 0.0, 25.0, 5.0, step=0.1) / 100.0
-    # Slider for Inflation
+    # Slider for Inflation.
     inflation_rate = st.slider("Inflation (%)", 1.0, 20.0, 2.0, step=0.1) / 100.0
-    # Slider for total upcoming supply (for 2025-2034)
+    # Slider for total upcoming supply (for 2025-2034).
     upcoming_supply_total = st.slider("Upcoming Supply 2025-2034", 0, 50000, 17082, step=100)
     
 with col1:
