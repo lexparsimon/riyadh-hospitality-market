@@ -125,14 +125,14 @@ st.plotly_chart(fig_plotly, use_container_width=True)
 # =============================================================================
 st.subheader("Map of Hotels")
 try:
-    with open("riyadh_hospitality.html", "r", encoding="utf-8") as f:
+    with open("kepler_hospitality.html", "r", encoding="utf-8") as f:
         kepler_map_html = f.read()
     # Wrap the embedded HTML in a responsive div.
     st.markdown('<div class="responsive-html">', unsafe_allow_html=True)
     components.html(kepler_map_html, height=600, width=1000)
     st.markdown('</div>', unsafe_allow_html=True)
 except Exception as e:
-    st.error("Error loading Kepler map. Please ensure 'kepler_map.html' is in the repository.")
+    st.error("Error loading Kepler map. Please ensure 'kepler_hospitality.html' is in the repository.")
 
 # =============================================================================
 # 4. Occupancy Projection Graph for Group 1 (5‑star Luxury)
@@ -156,12 +156,10 @@ def plot_occupancy_projection():
     years_proj = np.arange(0, len(supply))  # 0,...,10
     demand_growth_rates = [0.00, 0.05, 0.10, 0.15, 0.20]
 
-    # Create a figure with a dark background matching Streamlit's (#0E1117)
     fig_occ, ax_occ = plt.subplots(figsize=(20,10))
     fig_occ.patch.set_facecolor('#0E1117')
     ax_occ.set_facecolor('#0E1117')
 
-    # Use dimmed white for all text (70% opacity white)
     text_color = (1, 1, 1, 0.7)
 
     for g in demand_growth_rates:
@@ -171,7 +169,7 @@ def plot_occupancy_projection():
     ax_occ.axhline(occ_rate_today*100, color='cyan', linestyle='--', linewidth=1, label=f"Current Occupancy ({occ_rate_today*100:.1f}%)")
     ax_occ.set_xlabel("Year", fontsize=18, color=text_color)
     ax_occ.set_ylabel("Occupancy Rate (%)", fontsize=18, color=text_color)
-    ax_occ.set_title("Projected Occupancy, High ADR & High Occupancy (Premium), 2025–2034", fontsize=20, color=text_color)
+    ax_occ.set_title("Projected Occupancy for Group 1 (5‑star Luxury) over 2025–2035", fontsize=20, color=text_color)
     ax_occ.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
     ax_occ.set_ylim(0, 100.1)
     ax_occ.tick_params(axis='x', labelsize=16, colors=text_color)
@@ -184,7 +182,7 @@ def plot_occupancy_projection():
     plt.tight_layout()
     return fig_occ
 
-st.subheader("Projected Occupancy for High ADR & High Occupancy (Premium) Segment, 2025-2034")
+st.subheader("Projected Occupancy for High ADR & High Occupancy (Premium) Segment, 2025-2035")
 fig_occ = plot_occupancy_projection()
 st.pyplot(fig_occ)
 
@@ -199,7 +197,6 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     default5 = np.array([1168, 2408, 4586, 1945, 481, 490, 0, 0, 0, 384])
     default4 = np.array([1317, 1281, 1170, 950, 384, 224, 0, 0, 294, 0])
     total_default = np.sum(default5 + default4)
-    
     new_supply_5 = np.zeros(T)
     new_supply_4 = np.zeros(T)
     for t in range(1, T):
@@ -210,8 +207,6 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     inflation_rate = float(inflation_rate)
     inflation = inflation_rate
     
-    # Compute a dynamic threshold for high demand.
-    # Baseline threshold is 10% when upcoming_supply_total equals 17082.
     baseline_supply = 17082
     threshold = 0.10 * (upcoming_supply_total / baseline_supply)
     high_demand = (demand_growth > threshold)
@@ -293,11 +288,12 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     
     text_color = (1, 1, 1, 0.7)  # Dimmed white
     
-    ax_sim[0].plot(years + 2024, share1, marker='o', color='#1f77b4', linewidth=2,
+    # Use years as defined (already 2024 to 2034) without adding 2024 again.
+    ax_sim[0].plot(years, share1, marker='o', color='#1f77b4', linewidth=2,
                    label='High ADR & High Occupancy (Premium)')
-    ax_sim[0].plot(years + 2024, share2, marker='o', color='#ff7f0e', linewidth=2,
+    ax_sim[0].plot(years, share2, marker='o', color='#ff7f0e', linewidth=2,
                    label='High ADR & Low Occupancy (Upper-Mid)')
-    ax_sim[0].plot(years + 2024, share3, marker='o', color='#2ca02c', linewidth=2,
+    ax_sim[0].plot(years, share3, marker='o', color='#2ca02c', linewidth=2,
                    label='Low ADR & High Occupancy (Budget)')
     ax_sim[0].set_xlabel("Year", fontsize=18, color=text_color)
     ax_sim[0].set_ylabel("Market Share (%)", fontsize=18, color=text_color)
@@ -310,11 +306,11 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     ax_sim[0].tick_params(axis='x', labelsize=16, colors=text_color)
     ax_sim[0].tick_params(axis='y', labelsize=16, colors=text_color)
     
-    ax_sim[1].plot(years + 2024, ADR1_nom, marker='o', color='#d62728', linewidth=2,
+    ax_sim[1].plot(years, ADR1_nom, marker='o', color='#d62728', linewidth=2,
                    label='High ADR & High Occupancy (Premium)')
-    ax_sim[1].plot(years + 2024, ADR2_nom, marker='o', color='#9467bd', linewidth=2,
+    ax_sim[1].plot(years, ADR2_nom, marker='o', color='#9467bd', linewidth=2,
                    label='High ADR & Low Occupancy (Upper-Mid)')
-    ax_sim[1].plot(years + 2024, ADR3_nom, marker='o', color='#8c564b', linewidth=2,
+    ax_sim[1].plot(years, ADR3_nom, marker='o', color='#8c564b', linewidth=2,
                    label='Low ADR & High Occupancy (Budget)')
     ax_sim[1].set_xlabel("Year", fontsize=18, color=text_color)
     ax_sim[1].set_ylabel("ADR (SAR, nominal)", fontsize=18, color=text_color)
@@ -334,8 +330,8 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     plt.tight_layout()
     return fig_sim
 
-# st.subheader("Simulation Output")
-# Make the simulation output column wider by adjusting the columns ratio (e.g., 5:1).
+st.subheader("Simulation Output")
+# Adjust columns so the control section is narrower.
 col1, col2 = st.columns([5, 1])
 with col2:
     st.markdown("## Controls")
