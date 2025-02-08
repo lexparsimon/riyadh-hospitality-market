@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Set page configuration to wide and set a title.
+# Set page configuration to wide.
 st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
 
 @st.cache_data
@@ -30,9 +30,9 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     high_demand = (demand_growth > 0.10)
     
     # Initial conditions
-    K1_0 = 7550.0  # Group 1 keys (Luxury)
-    K2_0 = 6124.0  # Group 2 keys (Upper-Mid)
-    K3_0 = 3266.0  # Group 3 keys (Budget)
+    K1_0 = 7550.0  # Group 1 keys
+    K2_0 = 6124.0  # Group 2 keys
+    K3_0 = 3266.0  # Group 3 keys
     
     ADR1_0 = 1324.0  # Initial ADR for Group 1
     ADR2_0 = 1137.0  # Initial ADR for Group 2
@@ -122,39 +122,49 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     share2 = 100 * K2 / total_keys
     share3 = 100 * K3 / total_keys
     
-    # --- Set a dark style and adjust backgrounds.
+    # --- Set a dark style.
     try:
         plt.style.use('dark_background')
     except OSError:
         plt.style.use('default')
     
-    # Create a large figure (20x10) with the desired background.
+    # Create a large figure (20x10) with background matching Streamlit dark theme.
     fig, ax = plt.subplots(1, 2, figsize=(20, 10))
-    fig.patch.set_facecolor('#0E1117')  # Match Streamlit dark background.
+    fig.patch.set_facecolor('#0E1117')
     
-    # Plot Market Shares.
-    ax[0].plot(years, share1, marker='o', color='#1f77b4', linewidth=2, label='Group 1 (Luxury)')
-    ax[0].plot(years, share2, marker='o', color='#ff7f0e', linewidth=2, label='Group 2 (Upper-Mid)')
-    ax[0].plot(years, share3, marker='o', color='#2ca02c', linewidth=2, label='Group 3 (Budget)')
-    ax[0].set_xlabel("Year", fontsize=14)
-    ax[0].set_ylabel("Market Share (%)", fontsize=14)
-    ax[0].set_title("Evolution of Market Shares", fontsize=16)
-    leg1 = ax[0].legend(fontsize=12, frameon=False)
-    ax[0].grid(True, linestyle='--', alpha=0.7)
+    # Plot Market Shares with updated legend labels.
+    ax[0].plot(years, share1, marker='o', color='#1f77b4', linewidth=2,
+               label='High ADR & High Occupancy (Premium)')
+    ax[0].plot(years, share2, marker='o', color='#ff7f0e', linewidth=2,
+               label='High ADR & Low Occupancy (Upper-Mid)')
+    ax[0].plot(years, share3, marker='o', color='#2ca02c', linewidth=2,
+               label='Low ADR & High Occupancy (Budget)')
+    ax[0].set_xlabel("Year", fontsize=18)
+    ax[0].set_ylabel("Market Share (%)", fontsize=18)
+    ax[0].set_title("Evolution of Market Shares", fontsize=20)
+    leg1 = ax[0].legend(fontsize=14, frameon=False)
+    ax[0].grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
     ax[0].set_facecolor('#0E1117')
+    ax[0].tick_params(axis='x', labelsize=16)
+    ax[0].tick_params(axis='y', labelsize=16)
     
-    # Plot ADRs.
-    ax[1].plot(years, ADR1_nom, marker='o', color='#d62728', linewidth=2, label='Group 1 ADR')
-    ax[1].plot(years, ADR2_nom, marker='o', color='#9467bd', linewidth=2, label='Group 2 ADR')
-    ax[1].plot(years, ADR3_nom, marker='o', color='#8c564b', linewidth=2, label='Group 3 ADR')
-    ax[1].set_xlabel("Year", fontsize=14)
-    ax[1].set_ylabel("ADR (SAR, nominal)", fontsize=14)
-    ax[1].set_title("Evolution of Nominal ADR", fontsize=16)
-    leg2 = ax[1].legend(fontsize=12, frameon=False)
-    ax[1].grid(True, linestyle='--', alpha=0.7)
+    # Plot ADRs with updated legend labels.
+    ax[1].plot(years, ADR1_nom, marker='o', color='#d62728', linewidth=2,
+               label='High ADR & High Occupancy (Premium)')
+    ax[1].plot(years, ADR2_nom, marker='o', color='#9467bd', linewidth=2,
+               label='High ADR & Low Occupancy (Upper-Mid)')
+    ax[1].plot(years, ADR3_nom, marker='o', color='#8c564b', linewidth=2,
+               label='Low ADR & High Occupancy (Budget)')
+    ax[1].set_xlabel("Year", fontsize=18)
+    ax[1].set_ylabel("ADR (SAR, nominal)", fontsize=18)
+    ax[1].set_title("Evolution of Nominal ADR", fontsize=20)
+    leg2 = ax[1].legend(fontsize=14, frameon=False)
+    ax[1].grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
     ax[1].set_facecolor('#0E1117')
+    ax[1].tick_params(axis='x', labelsize=16)
+    ax[1].tick_params(axis='y', labelsize=16)
     
-    # Remove frames (axes spines) for a clean look.
+    # Remove axes spines for a frameless look.
     for a in ax:
         for spine in a.spines.values():
             spine.set_visible(False)
