@@ -9,30 +9,34 @@ import streamlit.components.v1 as components  # For embedding external HTML
 st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
 
 # -----------------------------------------------------------------------------
-# Inject custom CSS for mobile responsiveness.
+# Inject custom CSS for mobile responsiveness
 # -----------------------------------------------------------------------------
 st.markdown(
     """
     <style>
-    /* Adjust main container padding and max-width */
+    /* Reduce padding and use full width on mobile */
     .reportview-container .main .block-container {
         padding: 1rem;
-        max-width: 95%;
+        max-width: 100%;
     }
-    /* Force columns to stack vertically on small screens */
-    @media only screen and (max-width: 600px) {
+    /* Force columns to stack on small screens */
+    @media (max-width: 768px) {
         div[data-testid="column"] {
             flex: 100% !important;
             max-width: 100% !important;
+            display: block;
+            margin-bottom: 1rem;
         }
-        /* Adjust header sizes on mobile */
+    }
+    /* Make the embedded HTML (e.g., Kepler map) responsive */
+    .responsive-html {
+        width: 100%;
+        overflow-x: auto;
+    }
+    /* Adjust header sizes for mobile */
+    @media (max-width: 768px) {
         h1 { font-size: 2.5rem !important; }
         h2 { font-size: 2rem !important; }
-    }
-    /* Make embedded HTML (e.g. Kepler map) responsive */
-    .responsive-html {
-        max-width: 100%;
-        overflow-x: auto;
     }
     </style>
     """,
@@ -117,7 +121,7 @@ fig_plotly.update_layout(
 st.plotly_chart(fig_plotly, use_container_width=True)
 
 # =============================================================================
-# 3. Map Section
+# 3. Kepler.gl Map Section
 # =============================================================================
 st.subheader("Map of Hotels")
 try:
@@ -158,7 +162,7 @@ def plot_occupancy_projection():
     ax_occ.set_facecolor('#0E1117')
 
     # Use dimmed white for all text (70% opacity white)
-    text_color = (1,1,1,0.7)
+    text_color = (1, 1, 1, 0.7)
 
     for g in demand_growth_rates:
         demand = occupied_today * (1 + g) ** years_proj
@@ -175,8 +179,8 @@ def plot_occupancy_projection():
     for spine in ax_occ.spines.values():
         spine.set_visible(False)
     leg_occ = ax_occ.legend(fontsize=14, frameon=False)
-    for text in leg_occ.get_texts():
-        text.set_color(text_color)
+    for txt in leg_occ.get_texts():
+        txt.set_color(text_color)
     plt.tight_layout()
     return fig_occ
 
