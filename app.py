@@ -331,7 +331,8 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     return fig_sim
 
 st.subheader("Simulation Output")
-col1, col2 = st.columns([3, 1])
+# Adjust the columns ratio: 5 parts for simulation output, 1 part for controls.
+col1, col2 = st.columns([5, 1])
 with col2:
     st.markdown("## Controls")
     demand_growth = st.slider("Demand Growth Rate (%)", 0.0, 25.0, 5.0, step=0.1) / 100.0
@@ -342,3 +343,4 @@ with col1:
     fig_sim = simulate_market(demand_growth, inflation_rate, upcoming_supply_total)
     if fig_sim is not None:
         st.pyplot(fig_sim)
+
