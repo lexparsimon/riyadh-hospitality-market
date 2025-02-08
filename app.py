@@ -8,17 +8,15 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     years = np.arange(2024, 2024 + T)
     
     # --- Upcoming Supply Distribution ---
-    # Default upcoming supply values (effective values for years 2025-2034) from the original data:
-    # (Note: In the original simulation, new supply arrays have 11 elements where index 0 (year 2024) is not used.)
+    # Default upcoming supply values (for years 2025-2034) from your original data:
     default5 = np.array([1168, 2408, 4586, 1945, 481, 490, 0, 0, 0, 384])
     default4 = np.array([1317, 1281, 1170, 950, 384, 224, 0, 0, 294, 0])
-    total_default = np.sum(default5 + default4)  # Total of the upcoming supplies (for years 2025-2034); default is 17082.
+    total_default = np.sum(default5 + default4)  # Total of default upcoming supply (for 2025-2034)
     
-    # Create upcoming supply arrays for each year (length T). Year 2024 (index 0) gets no new supply.
+    # Create upcoming supply arrays for each year (year 2024 gets no new supply).
     new_supply_5 = np.zeros(T)
     new_supply_4 = np.zeros(T)
     for t in range(1, T):
-        # For year = 2024 + t, use the (t-1)th element of the default arrays.
         new_supply_5[t] = (default5[t-1] / total_default) * upcoming_supply_total
         new_supply_4[t] = (default4[t-1] / total_default) * upcoming_supply_total
 
@@ -40,7 +38,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     target_occ = {'group1': 0.65, 'group2': 0.40, 'group3': 0.65}
     D0 = (K1_0 * target_occ['group1'] + K2_0 * target_occ['group2'] + K3_0 * target_occ['group3']) * 365
     
-    # Initialize state arrays for keys and ADRs.
+    # Initialize state arrays for keys.
     K1 = np.zeros(T); K2 = np.zeros(T); K3 = np.zeros(T)
     K1[0] = K1_0; K2[0] = K2_0; K3[0] = K3_0
     
@@ -63,7 +61,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     alpha = 0.05; delta2 = 0.06; beta = 1.0; beta2 = 0.9
     
     for t in range(1, T):
-        # (A) Add new supply
+        # (A) Add new supply.
         K1[t] = K1[t-1] + new_supply_5[t]
         K2[t] = K2[t-1] + new_supply_4[t]
         K3[t] = K3[t-1]
@@ -121,8 +119,11 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     share2 = 100 * K2 / total_keys
     share3 = 100 * K3 / total_keys
     
-    # Use a classy matplotlib style.
-    plt.style.use('seaborn-whitegrid')
+    # --- Set a classy style.
+    try:
+        plt.style.use('seaborn-whitegrid')
+    except OSError:
+        plt.style.use('default')
     
     # Create larger, classy graphs.
     fig, ax = plt.subplots(1, 2, figsize=(16, 8))
@@ -160,7 +161,7 @@ with col2:
     demand_growth = st.slider("Demand Growth Rate (%)", 0.0, 25.0, 5.0, step=0.1) / 100.0
     # Slider for Inflation
     inflation_rate = st.slider("Inflation (%)", 1.0, 20.0, 2.0, step=0.1) / 100.0
-    # Single slider for total upcoming supply (for 2025-2034)
+    # Slider for total upcoming supply (for 2025-2034)
     upcoming_supply_total = st.slider("Upcoming Supply 2025-2034", 0, 50000, 17082, step=100)
     
 with col1:
