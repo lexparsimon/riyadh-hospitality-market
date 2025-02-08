@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 import pandas as pd
-import streamlit.components.v1 as components  # To embed external HTML
+import streamlit.components.v1 as components  # For embedding external HTML
 
 # Set page configuration to wide.
 st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
@@ -15,24 +15,11 @@ st.title("Riyadh Hospitality Market")
 st.subheader("2024-2034 Supply-Demand Dynamics")
 
 # ==============================
-# Section: Kepler.gl Map
-# ==============================
-st.subheader("Map of Hotels")
-# Read the Kepler.gl HTML map (ensure 'kepler_map.html' is in your repository)
-try:
-    with open("riyadh_hospitality.html", "r", encoding="utf-8") as f:
-        kepler_map_html = f.read()
-    # Embed the HTML map; adjust the height/width as desired.
-    components.html(kepler_map_html, height=600, width=1000)
-except Exception as e:
-    st.error("Error loading Kepler map. Please ensure 'kepler_map.html' is in the repository.")
-
-# ==============================
 # Plotly Chart: Hotel Quadrants
 # ==============================
 @st.cache_data
 def load_hotel_data():
-    # Ensure that "Riyadh_hotel_data.csv" is in your repository.
+    # Ensure that the CSV file is in your repository.
     return pd.read_csv("Riyadh_hotel_data.csv")
 
 df_filtered = load_hotel_data()
@@ -79,23 +66,23 @@ fig_plotly.update_traces(
     )
 )
 
-# Add median lines with thinner, dimmer white lines.
+# Add median lines that are thinner (line_width=1) and dimmer (rgba white with low opacity).
 fig_plotly.add_vline(
-    x=adr_median, 
-    line_dash="dash", 
-    line_color="rgba(255,255,255,0.3)", 
-    line_width=1, 
+    x=adr_median,
+    line_dash="dash",
+    line_color="rgba(255,255,255,0.3)",
+    line_width=1,
     annotation_text="Median ADR"
 )
 fig_plotly.add_hline(
-    y=occupancy_median, 
-    line_dash="dash", 
-    line_color="rgba(255,255,255,0.3)", 
-    line_width=1, 
+    y=occupancy_median,
+    line_dash="dash",
+    line_color="rgba(255,255,255,0.3)",
+    line_width=1,
     annotation_text="Median Occupancy"
 )
 
-# Update layout for a clean dark look.
+# Update layout for a dark look.
 fig_plotly.update_layout(
     xaxis_title="Median ADR (SAR)",
     yaxis_title="Occupancy Rate",
@@ -107,7 +94,19 @@ fig_plotly.update_layout(
 st.plotly_chart(fig_plotly, use_container_width=True)
 
 # ==============================
-# Matplotlib Simulation Chart
+# Kepler.gl Map Section
+# ==============================
+st.subheader("Map of Hotels")
+try:
+    with open("riyadh_hospitality.html", "r", encoding="utf-8") as f:
+        kepler_map_html = f.read()
+    # Embed the Kepler.gl map (adjust height and width as needed).
+    components.html(kepler_map_html, height=600, width=1000)
+except Exception as e:
+    st.error("Error loading Kepler map. Please ensure 'kepler_map.html' is in the repository.")
+
+# ==============================
+# Matplotlib Simulation Chart and Controls
 # ==============================
 @st.cache_data
 def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
@@ -134,7 +133,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     K1_0, K2_0, K3_0 = 7550.0, 6124.0, 3266.0
     ADR1_0, ADR2_0, ADR3_0 = 1324.0, 1137.0, 437.0
     target_occ = {'group1': 0.65, 'group2': 0.40, 'group3': 0.65}
-    D0 = (K1_0 * target_occ['group1'] + K2_0 * target_occ['group2'] + K3_0 * target_occ['group3']) * 365
+    D0 = (K1_0*target_occ['group1'] + K2_0*target_occ['group2'] + K3_0*target_occ['group3']) * 365
     
     K1 = np.zeros(T); K2 = np.zeros(T); K3 = np.zeros(T)
     K1[0], K2[0], K3[0] = K1_0, K2_0, K3_0
@@ -172,9 +171,9 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
         D2 = D_total * (W2 / W_sum)
         D3 = D_total * (W3 / W_sum)
         
-        occ1 = min(D1 / (K1[t] * 365), 1.0)
-        occ2 = min(D2 / (K2[t] * 365), 1.0)
-        occ3 = min(D3 / (K3[t] * 365), 1.0)
+        occ1 = min(D1 / (K1[t]*365), 1.0)
+        occ2 = min(D2 / (K2[t]*365), 1.0)
+        occ3 = min(D3 / (K3[t]*365), 1.0)
         
         if not high_demand:
             m1 = migration_flow(occ1, target_occ['group1'], K1[t], k1)
@@ -214,7 +213,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     except OSError:
         plt.style.use('default')
     
-    # Create a figure with dark background matching Streamlit's (#0E1117)
+    # Create a figure with a dark background matching Streamlit's (#0E1117)
     fig, ax = plt.subplots(1, 2, figsize=(20, 10))
     fig.patch.set_facecolor('#0E1117')
     
@@ -259,16 +258,14 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     return fig
 
 # ==============================
-# Layout: Controls and Simulation Output
+# Layout: Simulation Controls and Output
 # ==============================
 col1, col2 = st.columns([3, 1])
-
 with col2:
     st.markdown("## Controls")
     demand_growth = st.slider("Demand Growth Rate (%)", 0.0, 25.0, 5.0, step=0.1) / 100.0
     inflation_rate = st.slider("Inflation (%)", 1.0, 20.0, 2.0, step=0.1) / 100.0
     upcoming_supply_total = st.slider("Upcoming Supply 2025-2034", 0, 50000, 17082, step=100)
-    
 with col1:
     st.markdown("## Simulation Output")
     fig = simulate_market(demand_growth, inflation_rate, upcoming_supply_total)
