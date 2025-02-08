@@ -199,6 +199,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     default5 = np.array([1168, 2408, 4586, 1945, 481, 490, 0, 0, 0, 384])
     default4 = np.array([1317, 1281, 1170, 950, 384, 224, 0, 0, 294, 0])
     total_default = np.sum(default5 + default4)
+    
     new_supply_5 = np.zeros(T)
     new_supply_4 = np.zeros(T)
     for t in range(1, T):
@@ -208,7 +209,12 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     demand_growth = float(demand_growth)
     inflation_rate = float(inflation_rate)
     inflation = inflation_rate
-    high_demand = (demand_growth > 0.10)
+    
+    # Compute a dynamic threshold for high demand.
+    # Baseline threshold is 10% when upcoming_supply_total equals 17082.
+    baseline_supply = 17082
+    threshold = 0.10 * (upcoming_supply_total / baseline_supply)
+    high_demand = (demand_growth > threshold)
     
     K1_0, K2_0, K3_0 = 7550.0, 6124.0, 3266.0
     ADR1_0, ADR2_0, ADR3_0 = 1324.0, 1137.0, 437.0
@@ -217,6 +223,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     
     K1 = np.zeros(T); K2 = np.zeros(T); K3 = np.zeros(T)
     K1[0], K2[0], K3[0] = K1_0, K2_0, K3_0
+    
     Potential1 = np.zeros(T)
     Potential1[0] = K1_0
     for t in range(1, T):
@@ -284,10 +291,8 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     fig_sim, ax_sim = plt.subplots(1, 2, figsize=(20, 10))
     fig_sim.patch.set_facecolor('#0E1117')
     
-    # Define a dimmed white color (70% opacity) for text.
-    text_color = (1, 1, 1, 0.7)
+    text_color = (1, 1, 1, 0.7)  # Dimmed white
     
-    # Plot Market Shares.
     ax_sim[0].plot(years + 2024, share1, marker='o', color='#1f77b4', linewidth=2,
                    label='High ADR & High Occupancy (Premium)')
     ax_sim[0].plot(years + 2024, share2, marker='o', color='#ff7f0e', linewidth=2,
@@ -305,7 +310,6 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     ax_sim[0].tick_params(axis='x', labelsize=16, colors=text_color)
     ax_sim[0].tick_params(axis='y', labelsize=16, colors=text_color)
     
-    # Plot ADRs.
     ax_sim[1].plot(years + 2024, ADR1_nom, marker='o', color='#d62728', linewidth=2,
                    label='High ADR & High Occupancy (Premium)')
     ax_sim[1].plot(years + 2024, ADR2_nom, marker='o', color='#9467bd', linewidth=2,
@@ -330,8 +334,8 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     plt.tight_layout()
     return fig_sim
 
-# st.subheader("Simulation Output")
-# Adjust the columns ratio: 5 parts for simulation output, 1 part for controls.
+st.subheader("Simulation Output")
+# Make the simulation output column wider by adjusting the columns ratio (e.g., 5:1).
 col1, col2 = st.columns([5, 1])
 with col2:
     st.markdown("## Controls")
@@ -343,4 +347,3 @@ with col1:
     fig_sim = simulate_market(demand_growth, inflation_rate, upcoming_supply_total)
     if fig_sim is not None:
         st.pyplot(fig_sim)
-
