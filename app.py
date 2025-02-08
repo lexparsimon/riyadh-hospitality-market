@@ -330,7 +330,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     plt.tight_layout()
     return fig_sim
 
-st.subheader("Simulation Output")
+# st.subheader("Simulation Output")
 # Adjust columns so the control section is narrower.
 col1, col2 = st.columns([5, 1])
 with col2:
