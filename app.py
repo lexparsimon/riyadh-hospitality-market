@@ -7,23 +7,23 @@ import pandas as pd
 # Set page configuration to wide.
 st.set_page_config(page_title="Riyadh Hospitality Market", layout="wide")
 
-# -----------------------------
-# Top Section: App Title & Subtitle
-# -----------------------------
+# ==============================
+# Top Section: Title & Subtitle
+# ==============================
 st.title("Riyadh Hospitality Market")
 st.subheader("2024-2034 Supply-Demand Dynamics")
 
-# -----------------------------
+# ==============================
 # Plotly Chart: Hotel Quadrants
-# -----------------------------
+# ==============================
 @st.cache_data
 def load_hotel_data():
-    # Ensure that the CSV file is in your repository.
+    # Ensure that "Riyadh_hotel_data.csv" is in your repository.
     return pd.read_csv("Riyadh_hotel_data.csv")
 
 df_filtered = load_hotel_data()
 
-# Compute medians for vertical and horizontal reference lines.
+# Compute medians for reference lines.
 adr_median = df_filtered['median_adr_sar'].median()
 occupancy_median = df_filtered['occupancy_rate'].median()
 
@@ -36,7 +36,7 @@ colors = {
 }
 df_filtered['color'] = df_filtered['quadrant'].map(colors)
 
-# Create interactive scatter plot.
+# Create an interactive scatter plot.
 fig_plotly = px.scatter(
     df_filtered,
     x='median_adr_sar',
@@ -44,41 +44,55 @@ fig_plotly = px.scatter(
     color='quadrant',
     size='number_of_keys',
     hover_name='name',
-    hover_data=["parent_chain"],
+    custom_data=["number_of_keys", "parent_chain"],
     title="Hotel Quadrants: ADR vs Occupancy (Size by Number of Keys)",
-    labels={"median_adr_sar": "Median ADR (SAR)", "occupancy_rate": "Occupancy Rate"}
+    labels={
+        "median_adr_sar": "Median ADR (SAR)",
+        "occupancy_rate": "Occupancy Rate",
+        "number_of_keys": "Number of Keys",
+        "parent_chain": "Parent Chain"
+    }
 )
 
-# Add dashed median lines.
-fig_plotly.add_vline(x=adr_median, line_dash="dash", line_color="black", annotation_text="Median ADR")
-fig_plotly.add_hline(y=occupancy_median, line_dash="dash", line_color="black", annotation_text="Median Occupancy")
+# Update hover template to include spaces around "=".
+fig_plotly.update_traces(
+    hovertemplate=(
+        "<b>%{hovertext}</b><br><br>" +
+        "Median ADR (SAR) = %{x}<br>" +
+        "Occupancy Rate = %{y}<br>" +
+        "Number of Keys = %{customdata[0]}<br>" +
+        "Parent Chain = %{customdata[1]}<extra></extra>"
+    )
+)
 
-# Update layout for a clean look.
+# Add median lines in white.
+fig_plotly.add_vline(x=adr_median, line_dash="dash", line_color="white", annotation_text="Median ADR")
+fig_plotly.add_hline(y=occupancy_median, line_dash="dash", line_color="white", annotation_text="Median Occupancy")
+
+# Use a dark template for the Plotly chart.
 fig_plotly.update_layout(
     xaxis_title="Median ADR (SAR)",
     yaxis_title="Occupancy Rate",
     legend_title="Quadrant",
-    template="plotly_white"
+    template="plotly_dark"
 )
 
 # Display the Plotly chart.
 st.plotly_chart(fig_plotly, use_container_width=True)
 
-# -----------------------------
+# ==============================
 # Matplotlib Simulation Chart
-# -----------------------------
+# ==============================
 @st.cache_data
 def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     T = 11  # Simulation for years 2024 to 2034.
     years = np.arange(2024, 2024 + T)
     
     # --- Upcoming Supply Distribution ---
-    # Default upcoming supply values (for years 2025-2034) from your original data.
     default5 = np.array([1168, 2408, 4586, 1945, 481, 490, 0, 0, 0, 384])
     default4 = np.array([1317, 1281, 1170, 950, 384, 224, 0, 0, 294, 0])
     total_default = np.sum(default5 + default4)
     
-    # Distribute upcoming supply across years 2025-2034 in proportion to defaults.
     new_supply_5 = np.zeros(T)
     new_supply_4 = np.zeros(T)
     for t in range(1, T):
@@ -91,19 +105,11 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     inflation = inflation_rate
     high_demand = (demand_growth > 0.10)
     
-    # Initial conditions.
-    K1_0 = 7550.0  # Luxury keys.
-    K2_0 = 6124.0  # Upper-Mid keys.
-    K3_0 = 3266.0  # Budget keys.
-    
-    ADR1_0 = 1324.0  
-    ADR2_0 = 1137.0  
-    ADR3_0 = 437.0   
-    
+    K1_0, K2_0, K3_0 = 7550.0, 6124.0, 3266.0
+    ADR1_0, ADR2_0, ADR3_0 = 1324.0, 1137.0, 437.0
     target_occ = {'group1': 0.65, 'group2': 0.40, 'group3': 0.65}
     D0 = (K1_0 * target_occ['group1'] + K2_0 * target_occ['group2'] + K3_0 * target_occ['group3']) * 365
     
-    # Initialize state arrays.
     K1 = np.zeros(T); K2 = np.zeros(T); K3 = np.zeros(T)
     K1[0], K2[0], K3[0] = K1_0, K2_0, K3_0
     
@@ -182,7 +188,7 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     except OSError:
         plt.style.use('default')
     
-    # Create a figure with a dark background matching Streamlit's (#0E1117)
+    # Create a figure with dark background matching Streamlit's (#0E1117)
     fig, ax = plt.subplots(1, 2, figsize=(20, 10))
     fig.patch.set_facecolor('#0E1117')
     
@@ -226,9 +232,9 @@ def simulate_market(demand_growth, inflation_rate, upcoming_supply_total):
     plt.tight_layout()
     return fig
 
-# -----------------------------
+# ==============================
 # Layout: Controls and Simulation Output
-# -----------------------------
+# ==============================
 col1, col2 = st.columns([3, 1])
 
 with col2:
