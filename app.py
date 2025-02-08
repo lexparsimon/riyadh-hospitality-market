@@ -65,9 +65,21 @@ fig_plotly.update_traces(
     )
 )
 
-# Add median lines in white.
-fig_plotly.add_vline(x=adr_median, line_dash="dash", line_color="white", annotation_text="Median ADR")
-fig_plotly.add_hline(y=occupancy_median, line_dash="dash", line_color="white", annotation_text="Median Occupancy")
+# Add median lines in white, but thinner and dimmer.
+fig_plotly.add_vline(
+    x=adr_median, 
+    line_dash="dash", 
+    line_color="rgba(255,255,255,0.3)", 
+    line_width=1, 
+    annotation_text="Median ADR"
+)
+fig_plotly.add_hline(
+    y=occupancy_median, 
+    line_dash="dash", 
+    line_color="rgba(255,255,255,0.3)", 
+    line_width=1, 
+    annotation_text="Median Occupancy"
+)
 
 # Use a dark template for the Plotly chart.
 fig_plotly.update_layout(
