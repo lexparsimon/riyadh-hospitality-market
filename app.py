@@ -131,11 +131,10 @@ def plot_occupancy_projection():
 
     for g in demand_growth_rates:
         demand = occupied_today * (1 + g) ** years_proj
-        occupancy = demand / supply
+        occupancy = 100*demand / supply
         ax_occ.plot(2025 + years_proj, occupancy, marker='o', linewidth=2, label=f"Demand Growth = {g*100:.0f}%/yr")
     ax_occ.axhline(occ_rate_today, color='red', linestyle='--', linewidth=1, label=f"Current Occupancy ({occ_rate_today*100:.1f}%)")
-    ax_occ.set_xlabel("Year", fontsize=18, color=text_color)
-    ax_occ.set_ylabel("Occupancy Rate", fontsize=18, color=text_color)
+    ax_occ.set_ylabel("Occupancy Rate (%)", fontsize=18, color=text_color)
     ax_occ.set_title("Projected Occupancy, High ADR & High Occupancy, 2025–2034", fontsize=20, color=text_color)
     ax_occ.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
     ax_occ.set_ylim(0, 1.1)
