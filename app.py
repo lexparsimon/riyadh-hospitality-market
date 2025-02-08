@@ -69,14 +69,14 @@ fig_plotly.update_traces(
 fig_plotly.add_vline(
     x=adr_median, 
     line_dash="dash", 
-    line_color="rgba(255,255,255,0.3)", 
+    line_color="rgba(255,255,255,0.6)", 
     line_width=1, 
     annotation_text="Median ADR"
 )
 fig_plotly.add_hline(
     y=occupancy_median, 
     line_dash="dash", 
-    line_color="rgba(255,255,255,0.3)", 
+    line_color="rgba(255,255,255,0.6)", 
     line_width=1, 
     annotation_text="Median Occupancy"
 )
