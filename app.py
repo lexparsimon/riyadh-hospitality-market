@@ -2,10 +2,10 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Optional: Cache the simulation so that if parameters haven't changed, it reuses the result.
+# Increase figure size for a larger graph output.
 @st.cache_data
 def simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str):
-    T = 11  # Simulate from 2024 to 2034.
+    T = 11  # Simulation for years 2024-2034
     years = np.arange(2024, 2024 + T)
     
     # Convert inputs and set parameters
@@ -24,7 +24,7 @@ def simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str):
         supply5_list = [float(x.strip()) for x in supply5_str.split(',')]
         supply4_list = [float(x.strip()) for x in supply4_str.split(',')]
     except Exception as e:
-        st.error("Error parsing supply strings. Please enter comma-separated numbers.")
+        st.error("Error parsing supply strings. Please check your inputs.")
         return None
 
     new_supply_5 = np.array(supply5_list)
@@ -41,7 +41,8 @@ def simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str):
     # Initialize state variables
     K1 = np.zeros(T); K2 = np.zeros(T); K3 = np.zeros(T)
     K1[0] = K1_0; K2[0] = K2_0; K3[0] = K3_0
-    Potential1 = np.zeros(T); Potential1[0] = K1_0
+    Potential1 = np.zeros(T)
+    Potential1[0] = K1_0
     for t in range(1, T):
         Potential1[t] = Potential1[t - 1] + new_supply_5[t]
 
@@ -101,8 +102,8 @@ def simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str):
     share2 = 100 * K2 / total_keys
     share3 = 100 * K3 / total_keys
 
-    # Create the charts
-    fig, ax = plt.subplots(1, 2, figsize=(14, 6))
+    # Create the charts with a larger figure size.
+    fig, ax = plt.subplots(1, 2, figsize=(16, 8))
     ax[0].plot(years, share1, marker='o', color='#1f77b4', linewidth=2, label='Group 1 (Luxury)')
     ax[0].plot(years, share2, marker='o', color='#ff7f0e', linewidth=2, label='Group 2 (Upper-Mid)')
     ax[0].plot(years, share3, marker='o', color='#2ca02c', linewidth=2, label='Group 3 (Budget)')
@@ -124,17 +125,43 @@ def simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str):
     plt.tight_layout()
     return fig
 
-# Build the Streamlit interface
-st.title("Riyadh Hospitality Market")
-st.subheader("2024-2034 Supply-Demand Dynamics")
+# --- Layout Setup ---
 
-# Input widgets: changes in any widget will automatically trigger a rerun.
-demand_growth = st.slider("Demand Growth (%)", 0.0, 25.0, 5.0) / 100.0
-inflation_rate = st.slider("Inflation (%)", 1.0, 20.0, 2.0) / 100.0
-supply5_str = st.text_input("Supply 5", "860,1168,2408,4586,1945,481,490,0,0,0,384")
-supply4_str = st.text_input("Supply 4", "417,1317,1281,1170,950,384,224,0,0,294,0")
+# Create two columns: a wide left column for the graph and a narrow right column for controls.
+col1, col2 = st.columns([3, 1])
 
-# Automatically run the simulation when any input changes.
-fig = simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str)
-if fig is not None:
-    st.pyplot(fig)
+with col2:
+    st.markdown("## Controls")
+    # Sliders for demand growth and inflation
+    demand_growth = st.slider("Demand Growth (%)", 0.0, 25.0, 5.0, step=0.1) / 100.0
+    inflation_rate = st.slider("Inflation (%)", 1.0, 20.0, 2.0, step=0.1) / 100.0
+
+    # Prepare the list of years for supply inputs.
+    years_list = list(range(2024, 2024 + 11))  # 2024 to 2034
+
+    # Upcoming supply for 5‑star hotels
+    st.markdown("### Upcoming Supply of 5‑Star Hotels")
+    default_supply_5 = [860, 1168, 2408, 4586, 1945, 481, 490, 0, 0, 0, 384]
+    supply5_values = []
+    for i, year in enumerate(years_list):
+        # Using a small number input for each year.
+        val = st.number_input(f"{year}", value=default_supply_5[i], step=1, key=f"s5_{year}")
+        supply5_values.append(val)
+
+    # Upcoming supply for 4‑star hotels
+    st.markdown("### Upcoming Supply of 4‑Star Hotels")
+    default_supply_4 = [417, 1317, 1281, 1170, 950, 384, 224, 0, 0, 294, 0]
+    supply4_values = []
+    for i, year in enumerate(years_list):
+        val = st.number_input(f"{year}", value=default_supply_4[i], step=1, key=f"s4_{year}")
+        supply4_values.append(val)
+
+    # Convert the lists to comma‐separated strings
+    supply5_str = ",".join(str(x) for x in supply5_values)
+    supply4_str = ",".join(str(x) for x in supply4_values)
+
+with col1:
+    st.markdown("## Simulation Output")
+    fig = simulate_market(demand_growth, inflation_rate, supply5_str, supply4_str)
+    if fig is not None:
+        st.pyplot(fig)
